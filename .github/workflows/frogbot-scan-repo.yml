@@ -32,4 +32,4 @@ jobs:
 
       - uses: jfrog/frogbot@v3
         with:
-          oidc-provider-name: vgi-jfrog/gh-int-repo-1@github
+          oidc-provider-name: amitesh-jfrog/flask-webgoat@github
