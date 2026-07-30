@@ -7,33 +7,30 @@ on:
     - cron: "0 0 * * *"
   push:
     branches:
-      - main
+      - main # Change to 'master' if your repo uses master
 
 permissions:
   pull-requests: write
   contents: write
   security-events: write
-  # Mandatory when using OIDC authentication protocol instead of JF_ACCESS_TOKEN
   id-token: write
 
 env:
   JF_URL: ${{ vars.JF_URL }}
-  # Changed to the built-in GITHUB_TOKEN (or replace with secrets.GIT_TOKEN if using a custom PAT)
   JF_GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   scan-repository:
     runs-on: ubuntu-latest
-    name: Scan Repository (${{ matrix.branch }} branch)
-    strategy:
-      matrix:
-        branch: [ "main" ]
+    name: Scan Repository
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
         with:
-          ref: ${{ matrix.branch }}
-          fetch-depth: 0 # FIX: Disables shallow clones to prevent Git fetch errors
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
-      - uses: jfrog/frogbot@v3
+      - name: Run Frogbot Scan
+        uses: jfrog/frogbot@v3
         with:
           oidc-provider-name: amitesh-jfrog/flask-webgoat@github
