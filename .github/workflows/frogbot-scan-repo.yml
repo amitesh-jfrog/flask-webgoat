@@ -1,22 +1,23 @@
 name: "Frogbot Scan Repository"
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: # Allows manual trigger
   schedule:
-    # The repository will be scanned once a day at 00:00 GMT.
+    # Runs automatically once a day at midnight GMT
     - cron: "0 0 * * *"
   push:
     branches:
-      - main # Change to 'master' if your repo uses master
+      - main # Change to 'master' if that is your default branch
 
 permissions:
   pull-requests: write
   contents: write
   security-events: write
-  id-token: write
+  id-token: write # MANDATORY for OIDC authentication
 
 env:
   JF_URL: ${{ vars.JF_URL }}
+  # Uses GitHub's built-in token to allow Frogbot to open PRs and comment
   JF_GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
@@ -27,10 +28,11 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # fetch-depth: 0 is CRUCIAL for Frogbot to get full Git history and prevent shallow clone errors
           fetch-depth: 0
 
-      - name: Run Frogbot Scan
+      - name: Run Frogbot
         uses: jfrog/frogbot@v3
         with:
-          oidc-provider-name: amitesh-jfrog/flask-webgoat@github
+          # Must match the Provider Name created in Step 1
+          oidc-provider-name: "amitesh-frogbot-jfrog"
